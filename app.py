@@ -2,6 +2,8 @@ import geopandas as gpd
 from dash import Dash, html
 import dash_leaflet as dl
 import json
+import requests
+from io import BytesIO
 
 # Leer el archivo .gpkg
 def load_data(gpkg_path, layer_name=None):
@@ -13,8 +15,23 @@ def load_data(gpkg_path, layer_name=None):
     return json.loads(gdf.to_json())
 
 # Ruta al archivo .gpkg
-gpkg_path = "sectores_anonimizados 1.gpkg"  # Coloca el archivo en una carpeta llamada "data"
-geojson_data = load_data(gpkg_path)
+
+
+# Cargar el archivo desde una URL
+url = "https://drive.google.com/file/d/1yqpCMFVBI7vDbGo-ctzwU2X4EdcR6QiZ/view?usp=sharing"
+response = requests.get(url)
+with BytesIO(response.content) as f:
+    gdf = gpd.read_file(f)
+
+# Convertir a GeoJSON
+geo_data = gdf.to_crs(epsg=4326).to_json()
+
+
+
+
+
+##gpkg_path = "sectores_anonimizados 1.gpkg"  # Coloca el archivo en una carpeta llamada "data"
+geojson_data = load_data(geo_data)
 
 # Crear la aplicación Dash
 app = Dash(__name__)
